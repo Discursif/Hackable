@@ -101,7 +101,6 @@ class CommandLine():
     find = False
     for funct in self.funct: # for every command register
       if funct.__name__.split(" ")[0] == execute[0]: # Found the command
-
         if not self.SECURITY.canExecute(funct, message.author):await self.SECURITY.send_warn("TUTUTUTU","You can't use this command.\n **Sorry !**",message);return
 
         try:

@@ -24,8 +24,10 @@ CommandLine = DiscordCommandLineGenerator.CommandLine(CLIENT,Security)
 
 
 CONFIGURATION = {
-  "LogChannel":694996836536025249,
-	"consoleChan":694996263241777233
+  "LogChannelID":694996836536025249,
+  "LogChannel":CLIENT.get_channel(694996836536025249),
+	"ConsoleChannel":694996263241777233,
+  "ConsoleChannel":CLIENT.get_channel(694996263241777233)
 }
 
 
@@ -35,16 +37,38 @@ CONFIGURATION = {
 # | Commands of bot
 # \----------------------
 
-# ---- COMMAND'S COMMAND ---
+# ---- COMMAND'S COMMAND ----
+
 async def delete(messages,time):
   await asyncio.sleep(time)
   for message in messages:
     await message.delete()
 
+async def send_message(channel,content,time):
+  await asyncio.sleep(time)
+  await channel.send(content)
 
+async def edit_content(message,content,time):
+  await asyncio.sleep(time)
+  await message.edit(content=content)
+
+async def get_liste_hackers():
+  liste_hackers=[]
+  for member in CONFIGURATION["ConsoleChannel"].members:
+    for role in member.roles:
+      if role.name == "Hacker":liste_hackers.append(str(member)) 
+  return liste_hackers
+
+async def download_decode_animation(name_animation,nb_fct_called):
+  nb_htag,nb_points=nb_fct_called,20-nb_fct_called
+  download_or_decode_bar=nb_htag*'#'+nb_points*'.' 
+  message_animation=name_animation+' ['+download_or_decode_bar+'] '+str(nb_fct_called*5)+'%'
+  return message_animation
 
 
 # ---- General commands ----
+# str = string
+
 
 
 # ---- DEBUGS COMMAND ----
@@ -83,16 +107,48 @@ Prévenir <@349114853333663746> en cas de problème."""
   quit()
 
 
+
+# delete => delete 1
+# delete 50 => delete 50
+# delete qlfij => delete 1
 @Security.roleNeeded(["botmoderator","admin"])
 @CommandLine.addFunction()
 async def deleteCmd(nbMsg:(int,1),**kwargs) -> "delete [INT]":
   """Supprimme X messages.
 Ne rien indiqué surprimme le dernier message. Nous ne comptons pas la commande dans le nombre de messages."""
-  try: nbMsg = int(nbMsg)
-  except ValueError: raise AssertionError("Le paramètre doit etre un entier.")
   nbMsg += 1
   async for message in CommandLine.message.channel.history(limit=int(nbMsg)):
     await message.delete()
+
+
+
+
+
+@Security.roleNeeded(['hacker'])
+@CommandLine.addFunction()
+async def get_hackers_on_the_discord_server(**kwargs) -> "$get.hackers.server":
+  """ Hack des gens
+Bonjour les gens
+""" 
+  channel_terminal=CONFIGURATION["ConsoleChannel"]
+  liste_hackers=get_liste_hackers()
+  response='File : \nHackers on the server : '
+  for x in liste_hackers:
+    response=response+x+' ; '
+  if response == '':await channel_terminal.send('No hackers on the server')
+  else:
+    message_download,message_decode='Download File : [....................] 0%','Decode File : [....................] 0%'
+  message_download_discord = await send_message(channel_terminal,message_download,21*0.04)
+	"""
+  for x in range(0, 21):
+    edit_content(message_download_discord,download_decode_animation('Download File : ', x), x*0.04)
+	
+  await channel_terminal.send('Download succeded')
+  message_decode_discord = await channel_terminal.send(message_decode)
+  for x in range(0,21):              
+    edit_content(message_download_discord,download_decode_animation('Decode File : ', x), x*0.04)
+  await channel_terminal.send('Decode succeded')
+  await channel_terminal.send(response[:-2])"""
 
 
 
@@ -151,20 +207,17 @@ Les aides sont détaillé au possible, en utillisant la syntaxe usuele.'''
   return "Commande pour l'aide inconnue.\nTapez `help` pour la liste des commandes.\n"
 
 
-
-# /----------------------
-# | Bot
-# \----------------------
-
+############
+##  Bot   ##
+############
 
 
 @CLIENT.event
 async def on_message(message):
-  if message.author.id != CLIENT.user.id: await Log.message("`<@!"+str(message.author.id)+">` - "+message.content)
+  if message.author.id != CLIENT.user.id: await Log.message("`<@!"+str(message.author.id)+"> - "+message.content+"`")
   else: return
 
-  if message.channel.id == CONFIGURATION["consoleChan"]:
-    message.content = message.content[1:]
+  if message.channel.id == CONFIGURATION["ConsoleChannelID"]:
     if not await Security.checkCommand(message):return # SECURITY
     ret = await CommandLine.execute(message)
     if ret != None and ret != "": await message.channel.send(ret)
@@ -173,7 +226,7 @@ async def on_message(message):
 
 @CLIENT.event
 async def on_ready():
-  Log.channel = CLIENT.get_channel(CONFIGURATION["LogChannel"])
+  Log.channel = CLIENT.get_channel(CONFIGURATION["LogChannelID"])
   await Log.info("Username: "+CLIENT.user.name+";    ID: "+str(CLIENT.user.id))
 
 
@@ -193,3 +246,7 @@ echo("TOKEN:",token)
 
 CLIENT.run(token)
 # if this sentence is modified, it just mean that I need to update the code for refresh the bot on Heraku server.
+
+"""
+-----------------------------------------------------------------------------------------------------
+"""
