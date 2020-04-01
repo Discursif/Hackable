@@ -143,7 +143,7 @@ Bonjour les gens
 
   
   for x in range(0, 21):
-    edit_content(message_download_discord,download_decode_animation('Download File : ', x), x*0.04)
+    await edit_content(message_download_discord,download_decode_animation('Download File : ', x), x*0.04)
   """
   await channel_terminal.send('Download succeded')
   message_decode_discord = await channel_terminal.send(message_decode)
