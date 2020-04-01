@@ -7,6 +7,7 @@ class Log():
     def __init__(self,**kwargs):
         self.log_levels = kwargs.get("log_level",["ALL"])
         self.channel = None
+        self.first = True
     
     async def __out(self,message,log_type):
         if self.first:
