@@ -7,7 +7,7 @@
 
 import sys, os
 import com
-Log = com.Log
+Log = com.LOG
 
 import asyncio, discord
 CLIENT = discord.Client()
@@ -137,6 +137,7 @@ Bonjour les gens
   else:
     message_download,message_decode='Download File : [....................] 0%','Decode File : [....................] 0%'
   message_download_discord = await send_message(channel_terminal,message_download,21*0.04)
+
   """
   for x in range(0, 21):
     edit_content(message_download_discord,download_decode_animation('Download File : ', x), x*0.04)
