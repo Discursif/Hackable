@@ -26,7 +26,7 @@ CommandLine = DiscordCommandLineGenerator.CommandLine(CLIENT,Security)
 CONFIGURATION = {
   "LogChannelID":694996836536025249,
   "LogChannel":CLIENT.get_channel(694996836536025249),
-	"ConsoleChannel":694996263241777233,
+	"ConsoleChannelID":694996263241777233,
   "ConsoleChannel":CLIENT.get_channel(694996263241777233)
 }
 
@@ -122,7 +122,7 @@ Ne rien indiqué surprimme le dernier message. Nous ne comptons pas la commande 
 
 
 
-@Security.roleNeeded(['hacker'])
+@Security.roleNeeded(['Admin'])
 @CommandLine.addFunction()
 async def get_hackers_on_the_discord_server(**kwargs) -> "$get.hackers.server":
   """ Hack des gens
