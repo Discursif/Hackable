@@ -139,7 +139,7 @@ Bonjour les gens
   if response == '':await channel_terminal.send('No hackers on the server')
   else:
     message_download,message_decode='Download File : [....................] 0%','Decode File : [....................] 0%'
-  message_download_discord = await send_message(channel_terminal,message_download,21*0.04)
+  message_download_discord = await channel_terminal.send(message_download)
 
   
   for x in range(0, 21):
