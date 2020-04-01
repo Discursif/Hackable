@@ -62,7 +62,7 @@ def get_liste_hackers():
       if role.name == "Hacker":liste_hackers.append(str(member)) 
   return liste_hackers
 
-async def download_decode_animation(name_animation,nb_fct_called):
+def download_decode_animation(name_animation,nb_fct_called):
   nb_htag,nb_points=nb_fct_called,20-nb_fct_called
   download_or_decode_bar=nb_htag*'#'+nb_points*'.' 
   message_animation=name_animation+' ['+download_or_decode_bar+'] '+str(nb_fct_called*5)+'%'
