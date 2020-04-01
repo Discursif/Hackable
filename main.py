@@ -52,7 +52,7 @@ async def edit_content(message,content,time):
   await asyncio.sleep(time)
   await message.edit(content=content)
 
-async def get_liste_hackers():
+def get_liste_hackers():
   liste_hackers=[]
   for member in CONFIGURATION["ConsoleChannel"].members:
     for role in member.roles:
@@ -122,14 +122,14 @@ Ne rien indiqué surprimme le dernier message. Nous ne comptons pas la commande 
 
 
 
-@Security.roleNeeded(['Admin'])
+@Security.roleNeeded(['Hacker'])
 @CommandLine.addFunction()
 async def get_hackers_on_the_discord_server(**kwargs) -> "$get.hackers.server":
   """ Hack des gens
 Bonjour les gens
 """ 
   channel_terminal=CONFIGURATION["ConsoleChannel"]
-  liste_hackers=get_liste_hackers()
+  liste_hackers = get_liste_hackers()
   response='File : \nHackers on the server : '
   for x in liste_hackers:
     response=response+x+' ; '
