@@ -25,10 +25,12 @@ CommandLine = DiscordCommandLineGenerator.CommandLine(CLIENT,Security)
 
 CONFIGURATION = {
   "LogChannelID":694996836536025249,
-  "LogChannel":CLIENT.get_channel(694996836536025249),
-	"ConsoleChannelID":694996263241777233,
-  "ConsoleChannel":CLIENT.get_channel(694996263241777233)
+	"ConsoleChannelID":694996263241777233
 }
+
+CONFIGURATION['LogChannel'] = CLIENT.get_channel(694996836536025249)
+CONFIGURATION['ConsoleChannel'] = CLIENT.get_channel(694996263241777233)
+
 
 
 
