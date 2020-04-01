@@ -55,8 +55,9 @@ async def edit_content(message,content,time):
   await message.edit(content=content)
 
 def get_liste_hackers():
+  channel_t=CLIENT.get_channel(694996263241777233)
   liste_hackers=[]
-  for member in CONFIGURATION["ConsoleChannel"].members:
+  for member in channel_t.members:
     for role in member.roles:
       if role.name == "Hacker":liste_hackers.append(str(member)) 
   return liste_hackers
@@ -130,7 +131,7 @@ async def get_hackers_on_the_discord_server(**kwargs) -> "$get.hackers.server":
   """ Hack des gens
 Bonjour les gens
 """ 
-  channel_terminal=CONFIGURATION["ConsoleChannel"]
+  channel_terminal=CLIENT.get_channel(694996263241777233)
   liste_hackers = get_liste_hackers()
   response='File : \nHackers on the server : '
   for x in liste_hackers:
