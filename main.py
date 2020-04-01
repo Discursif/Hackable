@@ -1,98 +1,195 @@
-# Bot discord
 
-#INFORMATION FOR THE BOT :
-# Name : Organisateur
-# Client Id : 692710615332159613
-# Client secret : JgLYrLCyjJ5MvZPagOZcRXUXTLSYOMTY
-# Token : NjkyNzEwNjE1MzMyMTU5NjEz.XnygRw.U_jlqG1beuIqblh6Xyt20xY_1pQ
-# Permission Integer : 522304
+# Code by Cypooos and AngelOverflow - Twitter: @cypooos @XXX - Disursif 2020
 
-import discord, time
-# --> ça sert à rien pour l'instant : from discord.ext import commands
+# /----------------------
+# | Importation
+# \----------------------
+
+import sys, os
+import com
+Log = com.Log
+
+import asyncio, discord
+CLIENT = discord.Client()
+
+def echo(*arg):
+  print(*arg)
+  sys.stdout.flush()
+
+import security
+Security = security.Security(CLIENT)
+
+import DiscordCommandLineGenerator
+CommandLine = DiscordCommandLineGenerator.CommandLine(CLIENT,Security)
 
 
-token = 'NjkyNzEwNjE1MzMyMTU5NjEz.XnygRw.U_jlqG1beuIqblh6Xyt20xY_1pQ' #Token du bot
-client = discord.Client() # crée un objet client
-#bot = commands.Bot(command_prefix='@')  #les @bot.command commence avec @
-channel_terminal = client.get_channel(693493289332244480) # Chanel terminal
+CONFIGURATION = {
+  "LogChannel":694996836536025249,
+	"consoleChan":694996263241777233
+}
 
 
-@client.event
-async def on_ready(): # Ne pas changer 
-    print('We have logged in as {0.user}'.format(client))
 
 
-#error = ('Type of ERROR', 'Message error', message.author.display_name)
-@client.event
-async def on_message(message): # Ne pas changer
-  if message.author==client.user:return # Don't check bots messages
-  channel_terminal = client.get_channel(693493289332244480) # Chanel terminal
+# /----------------------
+# | Commands of bot
+# \----------------------
 
-  ##########################################################
-  ####             Functions used after                 ####
-  ##########################################################  
- 
-  def get_liste_hackers():
-    liste_hackers=[]
-    for member in channel_terminal.members:
-        for role in member.roles:
-            if role.name == "Hacker":liste_hackers.append(str(member)) 
-    return liste_hackers  
-  
-  def download_decode_animation(name_animation,nb_fct_called):
-      nb_htag,nb_points=x,20-x
-      download_or_decode_bar=nb_htag*'#'+nb_points*'.' 
-      message_animation=name_animation+' ['+download_or_decode_bar+'] '+str(x*5)+'%'
-      return message_animation
+# ---- COMMAND'S COMMAND ---
+async def delete(messages,time):
+  await asyncio.sleep(time)
+  for message in messages:
+    await message.delete()
+
+
+
+
+# ---- General commands ----
+
+
+# ---- DEBUGS COMMAND ----
+@Security.roleNeeded(["botmoderator"])
+@CommandLine.addFunction()
+async def evaluate(commands:max,**kwargs) -> "eval *PYTHON":
+  """Execute du code python.
+Execute du code python.
+**A éviter !** une fausse manip pourrais casser le bot ou détruire des données.
+**IL N'Y A PAS DE RETOUR EN ARRIERE POSSIBLE**
+Prévenir <@349114853333663746> en cas de problème."""
+  try:
+    ret = eval(commands)
+  except:
+    ret = sys.exc_info()[0]
+  return "__Return:__\n```python\n"+str(ret)+"```\n"
+
+
+@Security.roleNeeded(["botmoderator","admin"])
+@CommandLine.addFunction()
+async def ping(**kwargs) -> "ping":
+  """Répond `pong !`
+Répond `pong !`"""
+  await CommandLine.message.channel.send("Pong !")
+
+
+
+# ---- ADMINS COMMANDS ----
+@Security.roleNeeded(["botmoderator","admin"])
+@CommandLine.addFunction()
+async def stop(**kwargs) -> "stop":
+  """Arrête le bot.
+A utilliser en cas d'urgence: spam, crash, ou incontrollable.
+Prévenir <@349114853333663746> en cas de problème."""
+  await CommandLine.message.channel.send("Bye !")
+  quit()
+
+
+@Security.roleNeeded(["botmoderator","admin"])
+@CommandLine.addFunction()
+async def deleteCmd(nbMsg:(int,1),**kwargs) -> "delete [INT]":
+  """Supprimme X messages.
+Ne rien indiqué surprimme le dernier message. Nous ne comptons pas la commande dans le nombre de messages."""
+  try: nbMsg = int(nbMsg)
+  except ValueError: raise AssertionError("Le paramètre doit etre un entier.")
+  nbMsg += 1
+  async for message in CommandLine.message.channel.history(limit=int(nbMsg)):
+    await message.delete()
+
+
+
+
+# ---- HELP COMMAND ----
+@CommandLine.addFunction()
+async def help(info:(str,""),**kwargs) -> "help [COMMANDE]":
+  '''Affiche l'aide d'une commande.
+Affiche de l'aide sur une commande, ou sur les commandes en général si aucune n'est précisé.
+Les aides sont détaillé au possible, en utillisant la syntaxe usuele.'''
+  HELP_AUTH = ["botmoderator","admin","modérateur"]
+  message = CommandLine.message
+  if info == "":
+    embed_cmdUti=discord.Embed(title="__Liste des commandes utilisateurs__", color=0x80ffff)
     
+    embed_cmdUti.add_field(name="Nom", value="\n".join(["`"+fct.__name__.split(" ")[0]+"`" for fct in CommandLine.funct if fct.authGroup == None]), inline=True)
+    embed_cmdUti.add_field(name="Description", value="\n".join([fct.__doc__.split("\n")[0] for fct in CommandLine.funct if fct.authGroup == None]), inline=True)
+    embed_cmdUti.set_footer(text="Ce message d'aide ce détruira au bout de 30 secondes.")
 
-  ##########################################################
-  ###########  Message in the terminal channel   ###########
-  ###########               /!\                  ###########
-  ##########################################################  
-   
-  if message.channel==channel_terminal:
+    embed_cmdAdm=discord.Embed(title="__Liste des commandes administrateurs__", color=0xfb0013)
 
-    ##########################################################
-    ####         Get informations in the terminal         ####
-    ##########################################################
+    embed_cmdAdm.add_field(name="Nom", value="\n".join(["`"+fct.__name__.split(" ")[0]+"`" for fct in CommandLine.funct if fct.authGroup != None]), inline=True)
+    embed_cmdAdm.add_field(name="Description", value="\n".join([fct.__doc__.split("\n")[0] for fct in CommandLine.funct if fct.authGroup != None]), inline=True)
 
+    embed_cmdUti.set_thumbnail(url="https://media3.giphy.com/media/B7o99rIuystY4/source.gif")
+    embed_cmdAdm.set_thumbnail(url="https://media3.giphy.com/media/B7o99rIuystY4/source.gif")
+    embed_cmdAdm.set_footer(text="Le bot du jeu Hackable a été créé par Cyprien Bourotte.")
+    to_destroy = []
+    to_destroy.append(await message.channel.send("Je t'incite à faire `help COMMANDE` pour plus d'infos, ou encore `help cmd` pour des informations complémentaire",embed=embed_cmdUti))
+    # test admin
+    for x in HELP_AUTH:
+      if x.lower() in [y.name.lower() for y in CommandLine.message.author.roles]:
+        to_destroy.append(await message.channel.send("",embed=embed_cmdAdm))
+    asyncio.get_running_loop().run_in_executor(None, await delete(to_destroy,30))
+    return 
 
-    if message.content=='$get hackers.server':
-        liste_hackers=get_liste_hackers()
-        response='File : \nHackers on the server : '
-        for x in liste_hackers:
-            response=response+x+' ; '
-        if response == '':await channel_terminal.send('No hackers on the server')
-        else:
-            message_download,message_decode='Download File : [....................] 0%','Decode File : [....................] 0%'
-            message_download_discord = await channel_terminal.send(message_download)
-            await channel_terminal.set_permissions(message.author, read_messages=True, send_messages=False)
-            for x in range(0, 21):
-                await message_download_discord.edit(content=download_decode_animation('Download File : ',x))
-                time.sleep(0.03)
-            await channel_terminal.send('Download succeded')
-            message_decode_discord = await channel_terminal.send(message_decode)
-            for x in range(0,21):
-                await message_decode_discord.edit(content=download_decode_animation('Decode File : ',x))
-                time.sleep(0.03)
-            await channel_terminal.send('Decode succeded')
-            await channel_terminal.send(response[:-2])
-            await channel_terminal.set_permissions(message.author, read_messages=True, send_messages=True)
-
-
-    ##########################################################
-    ####           Hack someone on the terminal           ####
-    ##########################################################
-
-    #random hack
-    #target hack
-
-    elif message.content[0]!='$':
-        error=('SYNTAXE', 'Missing first character : $', message.author.display_name)
-        message_error='------------------------------------------------------------\nERROR '+error[0]+' from : '+error[2]+'\nMessage : '+message.content+'\nError message : '+error[1]+'\n------------------------------------------------------------\n'
-        await channel_terminal.send(message_error)
-        await message.delete()
+  for funct in CommandLine.funct:
+    if funct.__name__.split(" ")[0] == info:
+      if Security.canBeUse(funct,message.author):
+        # HELP FUNCTION
+        embed=discord.Embed(title="Commande : "+funct.__name__.split(" ")[0], description=str("\n".join(funct.__doc__.split("\n")[1:])), color=0x80ffff)
+        embed.set_footer(text="Ce message d'aide ce détruira au bout de 30 secondes.")
+        embed.set_author(name="Aide")
+        embed.set_thumbnail(url="https://media1.giphy.com/media/IQ47VvDzlzx9S/giphy.gif")
+        embed.add_field(name="Syntaxe :", value="`"+funct.__name__+"`", inline=False)
+        t = funct.authGroup
+        if isinstance(t,str): t = [t]
+        if funct.authGroup != None: embed.set_footer(text="Cette commande n'est utilisable seulement avec le role "+str(" ou ".join(t).lower()))
+        to_destroy = await message.channel.send(embed=embed)
+        asyncio.get_running_loop().run_in_executor(None, await delete([to_destroy],30))
+        return 
+      else:
+        # DONT ALLOW
+        Security.send_warn("Vous n'avez pas accès à cette commande.","Cette commande n'est utilisable seulement avec le role "+str(" ou ".join(funct.authGroup).lower(),CommandLine.message))
+        return
+  return "Commande pour l'aide inconnue.\nTapez `help` pour la liste des commandes.\n"
 
 
-client.run(token)
+
+# /----------------------
+# | Bot
+# \----------------------
+
+
+
+@CLIENT.event
+async def on_message(message):
+  if message.author.id != CLIENT.user.id: await Log.message("`<@!"+str(message.author.id)+">` - "+message.content)
+  else: return
+
+  if message.channel.id == CONFIGURATION["consoleChan"]:
+    message.content = message.content[1:]
+    if not await Security.checkCommand(message):return # SECURITY
+    ret = await CommandLine.execute(message)
+    if ret != None and ret != "": await message.channel.send(ret)
+  
+
+
+@CLIENT.event
+async def on_ready():
+  Log.channel = CLIENT.get_channel(CONFIGURATION["LogChannel"])
+  await Log.info("Username: "+CLIENT.user.name+";    ID: "+str(CLIENT.user.id))
+
+
+# /----------------------
+# | Start
+# \----------------------
+
+
+try:
+  token = os.environ['TOKEN']
+except KeyError:
+  # Not on server
+  echo("Exit because TOKEN not found")
+  exit()
+
+echo("TOKEN:",token)
+
+CLIENT.run(token)
+# if this sentence is modified, it just mean that I need to update the code for refresh the bot on Heraku server.
